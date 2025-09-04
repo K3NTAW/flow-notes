@@ -21,7 +21,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onSave }) => {
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: 'Start writing...',
+        placeholder: 'Press "/" for commands',
       }),
     ],
     content: blocksToHTML(note.blocks),
@@ -56,8 +56,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onSave }) => {
     },
     editorProps: {
       attributes: {
-        class: 'prose max-w-none focus:outline-none min-h-[400px] p-0',
-        style: 'min-height: 400px; padding: 0;',
+        style: 'outline: none; min-height: 1.5em; padding: 0; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; font-size: 16px; line-height: 1.5; color: #37352f;',
       },
     },
     autofocus: true,
@@ -124,29 +123,70 @@ export const Editor: React.FC<EditorProps> = ({ note, onSave }) => {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-gray-900">
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto py-16 px-20">
+    <div style={{
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: '#ffffff',
+      overflow: 'hidden'
+    }}>
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        backgroundColor: '#ffffff'
+      }}>
+        <div style={{
+          maxWidth: '900px',
+          margin: '0 auto',
+          padding: '96px 96px 0 96px',
+          minHeight: '100%'
+        }}>
           {/* Notion-style title */}
-          <div className="mb-12">
+          <div style={{
+            marginBottom: '8px',
+            position: 'relative'
+          }}>
             <input
               type="text"
               value={title}
               onChange={handleTitleChange}
               onBlur={handleTitleBlur}
-              className="w-full text-5xl font-bold bg-transparent border-none outline-none text-white placeholder-gray-500 leading-tight"
+              style={{
+                width: '100%',
+                fontSize: '40px',
+                fontWeight: '700',
+                lineHeight: '1.2',
+                color: '#37352f',
+                backgroundColor: 'transparent',
+                border: 'none',
+                outline: 'none',
+                padding: '3px 0',
+                fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"',
+                resize: 'none',
+                minHeight: '1.2em'
+              }}
               placeholder="Untitled"
             />
           </div>
           
           {/* Notion-style editor */}
           <div 
-            className="editor-container min-h-[600px] cursor-text"
+            style={{
+              minHeight: 'calc(100vh - 200px)',
+              cursor: 'text',
+              position: 'relative'
+            }}
             onClick={() => editor?.commands.focus()}
           >
             <EditorContent 
               editor={editor} 
-              className="prose prose-xl max-w-none focus:outline-none"
+              style={{
+                outline: 'none',
+                fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"',
+                fontSize: '16px',
+                lineHeight: '1.5',
+                color: '#37352f'
+              }}
             />
           </div>
         </div>
@@ -158,7 +198,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onSave }) => {
 // Helper functions for content conversion
 function blocksToHTML(blocks: Block[]): string {
   if (!blocks || blocks.length === 0) {
-    return '<p>Start typing here...</p>'; // Empty paragraph with placeholder text
+    return '<p></p>'; // Empty paragraph for clean start
   }
   return blocks.map(block => `<p>${block.content || ''}</p>`).join('');
 }

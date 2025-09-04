@@ -157,9 +157,19 @@ fn create_note(title: String) -> Result<Note, String> {
         .unwrap()
         .as_secs();
     
+    // Check for duplicate titles and add a number if needed
+    let existing_notes = list_notes()?;
+    let mut final_title = title.clone();
+    let mut counter = 1;
+    
+    while existing_notes.iter().any(|note| note.title == final_title) {
+        final_title = format!("{} {}", title, counter);
+        counter += 1;
+    }
+    
     let note = Note {
         id: format!("note_{}", now),
-        title,
+        title: final_title,
         blocks: vec![
             Block {
                 id: format!("block_{}", now + 1),

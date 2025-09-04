@@ -153,12 +153,12 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   const getIcon = () => {
     if (item.type === 'folder') {
       return isExpanded ? (
-        <FolderOpen style={{ width: '16px', height: '16px', color: '#3b82f6', marginRight: '8px' }} />
+        <FolderOpen style={{ width: '14px', height: '14px', color: '#3b82f6', marginRight: '6px' }} />
       ) : (
-        <Folder style={{ width: '16px', height: '16px', color: '#3b82f6', marginRight: '8px' }} />
+        <Folder style={{ width: '14px', height: '14px', color: '#3b82f6', marginRight: '6px' }} />
       );
     }
-    return <FileText style={{ width: '16px', height: '16px', color: '#6b7280', marginRight: '8px' }} />;
+    return <FileText style={{ width: '14px', height: '14px', color: '#6b7280', marginRight: '6px' }} />;
   };
 
   return (
@@ -168,12 +168,12 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
           display: 'flex',
           alignItems: 'center',
           width: '100%',
-          padding: '4px 8px',
+          padding: '3px 6px',
           cursor: 'pointer',
           borderRadius: '4px',
           margin: '1px 0',
           backgroundColor: isSelected ? '#f3f4f6' : 'transparent',
-          paddingLeft: isCollapsed ? '8px' : `${8 + level * 16}px`,
+          paddingLeft: isCollapsed ? '6px' : `${6 + level * 14}px`,
           transition: 'background-color 0.2s'
         }}
         onClick={handleClick}
@@ -199,9 +199,9 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '16px',
-              height: '16px',
-              marginRight: '4px',
+              width: '14px',
+              height: '14px',
+              marginRight: '3px',
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
@@ -211,11 +211,11 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
             animate={{ rotate: isExpanded ? 90 : 0 }}
             transition={{ duration: 0.2 }}
           >
-            <ChevronRight style={{ width: '12px', height: '12px' }} />
+            <ChevronRight style={{ width: '10px', height: '10px' }} />
           </motion.button>
         )}
         
-        {!hasChildren && !isCollapsed && <div style={{ width: '20px' }} />}
+        {!hasChildren && !isCollapsed && <div style={{ width: '17px' }} />}
         
         <div style={{ display: 'flex', alignItems: 'center', minWidth: 0, flex: 1 }}>
           {getIcon()}
@@ -232,18 +232,18 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
                     if (e.key === 'Escape') handleEditCancel();
                   }}
                   style={{
-                    marginLeft: '8px',
+                    marginLeft: '6px',
                     flex: 1,
                     background: 'transparent',
                     border: 'none',
                     outline: 'none',
-                    fontSize: '14px',
+                    fontSize: '13px',
                     fontWeight: '500'
                   }}
                   autoFocus
                 />
               ) : (
-                <span style={{ marginLeft: '8px', fontSize: '14px', color: '#374151', fontWeight: '500' }}>{item.name}</span>
+                <span style={{ marginLeft: '6px', fontSize: '13px', color: '#374151', fontWeight: '500' }}>{item.name}</span>
               )}
             </>
           )}
@@ -405,7 +405,7 @@ export const NotionSidebar: React.FC<SidebarProps> = ({
         id: 'my-folders',
         name: 'My Folders',
         type: 'folder',
-        isExpanded: false,
+        isExpanded: true,
         children: []
       }
     ];
@@ -453,13 +453,57 @@ export const NotionSidebar: React.FC<SidebarProps> = ({
   // Handle new folder creation
   const handleNewFolder = () => {
     const folderName = prompt('Enter folder name:');
-    if (folderName && onFolderCreate) {
-      onFolderCreate(folderName);
+    if (folderName && folderName.trim()) {
+      // Create new folder locally
+      const newFolder: FolderItem = {
+        id: `folder-${Date.now()}`,
+        name: folderName.trim(),
+        type: 'folder',
+        isExpanded: false,
+        children: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      // Add to "My Folders" section
+      setItems(prevItems => {
+        return prevItems.map(item => {
+          if (item.id === 'my-folders') {
+            return {
+              ...item,
+              children: [...(item.children || []), newFolder]
+            };
+          }
+          return item;
+        });
+      });
+
+      // Call the parent handler if provided
+      if (onFolderCreate) {
+        onFolderCreate(folderName.trim());
+      }
     }
   };
 
   // Handle folder rename
   const handleFolderRename = (folderId: string, newName: string) => {
+    // Update folder name locally
+    setItems(prevItems => {
+      const updateItems = (items: FolderItem[]): FolderItem[] => {
+        return items.map(item => {
+          if (item.id === folderId) {
+            return { ...item, name: newName, updatedAt: new Date() };
+          }
+          if (item.children) {
+            return { ...item, children: updateItems(item.children) };
+          }
+          return item;
+        });
+      };
+      return updateItems(prevItems);
+    });
+
+    // Call the parent handler if provided
     if (onFolderRename) {
       onFolderRename(folderId, newName);
     }
@@ -467,6 +511,20 @@ export const NotionSidebar: React.FC<SidebarProps> = ({
 
   // Handle folder delete
   const handleFolderDelete = (folderId: string) => {
+    // Remove folder locally
+    setItems(prevItems => {
+      const updateItems = (items: FolderItem[]): FolderItem[] => {
+        return items.map(item => {
+          if (item.children) {
+            return { ...item, children: updateItems(item.children) };
+          }
+          return item;
+        }).filter(item => item.id !== folderId);
+      };
+      return updateItems(prevItems);
+    });
+
+    // Call the parent handler if provided
     if (onFolderDelete) {
       onFolderDelete(folderId);
     }
@@ -474,6 +532,42 @@ export const NotionSidebar: React.FC<SidebarProps> = ({
 
   // Handle move item
   const handleMoveItem = (itemId: string, newParentId?: string) => {
+    // Move item locally
+    setItems(prevItems => {
+      let itemToMove: FolderItem | null = null;
+      
+      // Find and remove the item from its current location
+      const removeItem = (items: FolderItem[]): FolderItem[] => {
+        return items.map(item => {
+          if (item.id === itemId) {
+            itemToMove = { ...item, parentId: newParentId };
+            return null; // Mark for removal
+          }
+          if (item.children) {
+            return { ...item, children: removeItem(item.children) };
+          }
+          return item;
+        }).filter(item => item !== null) as FolderItem[];
+      };
+
+      // Add the item to its new location
+      const addItem = (items: FolderItem[]): FolderItem[] => {
+        return items.map(item => {
+          if (item.id === newParentId && itemToMove) {
+            return { ...item, children: [...(item.children || []), itemToMove] };
+          }
+          if (item.children) {
+            return { ...item, children: addItem(item.children) };
+          }
+          return item;
+        });
+      };
+
+      const itemsWithoutItem = removeItem(prevItems);
+      return addItem(itemsWithoutItem);
+    });
+
+    // Call the parent handler if provided
     if (onMoveItem) {
       onMoveItem(itemId, newParentId);
     }
@@ -492,19 +586,19 @@ export const NotionSidebar: React.FC<SidebarProps> = ({
       }}
     >
       {/* Header */}
-      <div style={{ padding: '16px', borderBottom: '1px solid #e5e7eb' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <h1 style={{ fontSize: '18px', fontWeight: '600', color: '#111827' }}>Notes</h1>
+      <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <h1 style={{ fontSize: '16px', fontWeight: '600', color: '#111827' }}>Notes</h1>
           <button style={{ padding: '4px', borderRadius: '4px', border: 'none', background: 'transparent', cursor: 'pointer' }}>
             <ChevronRight style={{ width: '16px', height: '16px', color: '#6b7280' }} />
           </button>
         </div>
         
         {/* Search Bar */}
-        <div style={{ position: 'relative', padding: '0 12px' }}>
+        <div style={{ position: 'relative', padding: '0 8px' }}>
           <Search style={{ 
             position: 'absolute', 
-            left: 'px', 
+            left: '12px', 
             top: '50%', 
             transform: 'translateY(-50%)', 
             width: '16px', 
@@ -517,8 +611,8 @@ export const NotionSidebar: React.FC<SidebarProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
-              width: '80%',
-              padding: '8px 8px 8px 40px',
+              width: 'calc(100% - 40px)',
+              padding: '6px 6px 6px 32px',
               border: '1px solid #d1d5db',
               borderRadius: '6px',
               fontSize: '14px',
@@ -530,25 +624,25 @@ export const NotionSidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Quick Actions */}
-      <div style={{ padding: '12px 16px', display: 'flex', gap: '8px' }}>
+      <div style={{ padding: '8px 12px', display: 'flex', gap: '6px' }}>
         <button
           onClick={handleNewNote}
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '8px 12px',
+            gap: '6px',
+            padding: '6px 10px',
             backgroundColor: '#111827',
             color: 'white',
             border: 'none',
             borderRadius: '6px',
-            fontSize: '14px',
+            fontSize: '13px',
             fontWeight: '500',
             cursor: 'pointer',
             flex: 1
           }}
         >
-          <Plus style={{ width: '16px', height: '16px' }} />
+          <Plus style={{ width: '14px', height: '14px' }} />
           New Note
         </button>
         <button
@@ -557,7 +651,7 @@ export const NotionSidebar: React.FC<SidebarProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '8px',
+            padding: '6px',
             backgroundColor: 'white',
             color: '#374151',
             border: '1px solid #d1d5db',
@@ -565,12 +659,12 @@ export const NotionSidebar: React.FC<SidebarProps> = ({
             cursor: 'pointer'
           }}
         >
-          <Folder style={{ width: '16px', height: '16px' }} />
+          <Folder style={{ width: '14px', height: '14px' }} />
         </button>
       </div>
 
       {/* Navigation */}
-      <div style={{ padding: '8px 0', borderBottom: '1px solid #e5e7eb', marginBottom: '8px' }}>
+      <div style={{ padding: '4px 0', borderBottom: '1px solid #e5e7eb', marginBottom: '4px' }}>
         {[
           { id: 'all', name: 'All Notes', icon: Home },
           { id: 'recent', name: 'Recent', icon: Clock },
@@ -591,17 +685,17 @@ export const NotionSidebar: React.FC<SidebarProps> = ({
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
-                padding: '8px 16px',
+                gap: '10px',
+                padding: '6px 12px',
                 backgroundColor: isActive ? '#f3f4f6' : 'transparent',
                 color: isActive ? '#111827' : '#6b7280',
                 border: 'none',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '13px',
                 textAlign: 'left'
               }}
             >
-              <Icon style={{ width: '16px', height: '16px' }} />
+              <Icon style={{ width: '14px', height: '14px' }} />
               <span>{item.name}</span>
             </button>
           );
@@ -609,13 +703,13 @@ export const NotionSidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Folders Section */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-        <div style={{ padding: '0 16px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '4px 0' }}>
+        <div style={{ padding: '0 12px' }}>
           <div style={{ 
-            fontSize: '11px', 
+            fontSize: '10px', 
             fontWeight: '600', 
             color: '#6b7280', 
-            marginBottom: '8px',
+            marginBottom: '6px',
             textTransform: 'uppercase',
             letterSpacing: '0.05em'
           }}>

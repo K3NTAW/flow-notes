@@ -12,24 +12,29 @@ const Breadcrumb = React.forwardRef<
 >(({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />);
 Breadcrumb.displayName = "Breadcrumb";
 
-const BreadcrumbList = React.forwardRef<HTMLOListElement, React.ComponentPropsWithoutRef<"ol">>(
+const BreadcrumbList = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<"div">>(
   ({ className, ...props }, ref) => (
-    <ol
+    <div
       ref={ref}
       className={cn(
         "flex items-center gap-1.5 text-sm text-muted-foreground sm:gap-2.5",
         className,
       )}
-      style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}
+      style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '8px', 
+        flexWrap: 'nowrap'
+      }}
       {...props}
     />
   ),
 );
 BreadcrumbList.displayName = "BreadcrumbList";
 
-const BreadcrumbItem = React.forwardRef<HTMLLIElement, React.ComponentPropsWithoutRef<"li">>(
+const BreadcrumbItem = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<"div">>(
   ({ className, ...props }, ref) => (
-    <li 
+    <div 
       ref={ref} 
       className={cn("inline-flex items-center gap-1.5", className)} 
       style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
@@ -71,10 +76,10 @@ const BreadcrumbPage = React.forwardRef<HTMLSpanElement, React.ComponentPropsWit
 );
 BreadcrumbPage.displayName = "BreadcrumbPage";
 
-const BreadcrumbSeparator = ({ children, className, ...props }: React.ComponentProps<"li">) => (
-  <li role="presentation" aria-hidden="true" className={className} {...props}>
+const BreadcrumbSeparator = ({ children, className, ...props }: React.ComponentProps<"div">) => (
+  <div role="presentation" aria-hidden="true" className={className} {...props}>
     {children ?? <ChevronRightIcon size={16} strokeWidth={2} />}
-  </li>
+  </div>
 );
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
 
