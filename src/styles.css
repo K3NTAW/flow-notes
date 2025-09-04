@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-900 text-gray-100;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .btn-primary {
+    @apply btn bg-blue-600 text-white hover:bg-blue-700 h-10 px-4 py-2;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-gray-100 text-gray-900 hover:bg-gray-200 h-10 px-4 py-2;
+  }
+  
+  .btn-ghost {
+    @apply btn hover:bg-gray-100 hover:text-gray-900 h-10 px-4 py-2;
+  }
+  
+  .input {
+    @apply flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+}
+
+/* Notion-like editor styles */
+.ProseMirror {
+  outline: none;
+  line-height: 1.8;
+  min-height: 600px;
+  padding: 0;
+  cursor: text;
+  position: relative;
+  font-size: 18px;
+  color: #e5e5e5;
+}
+
+.ProseMirror > * + * {
+  margin-top: 1.2em;
+}
+
+.ProseMirror p {
+  margin: 0.8em 0;
+  line-height: 1.8;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #78716c;
+  pointer-events: none;
+  height: 0;
+  font-size: 18px;
+}
+
+/* Ensure editor is interactive */
+.ProseMirror:focus {
+  outline: none;
+}
+
+.ProseMirror * {
+  pointer-events: auto;
+}
+
+/* Editor container styles */
+.editor-container {
+  position: relative;
+  min-height: 600px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.editor-container:focus-within {
+  /* No border or outline - clean Notion style */
+}
+
+.ProseMirror h1, .ProseMirror h2, .ProseMirror h3 {
+  line-height: 1.2;
+  font-weight: 600;
+  color: #ffffff;
+  margin-top: 2.5em;
+  margin-bottom: 0.8em;
+}
+
+.ProseMirror h1 {
+  font-size: 2.5em;
+}
+
+.ProseMirror h2 {
+  font-size: 1.8em;
+}
+
+.ProseMirror h3 {
+  font-size: 1.4em;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding: 0 1rem;
+}
+
+.ProseMirror blockquote {
+  padding-left: 1rem;
+  border-left: 3px solid var(--border);
+  color: var(--muted-foreground);
+}
+
+.ProseMirror pre {
+  background: #f1f3f5;
+  color: #343a40;
+  font-family: "JetBrainsMono", monospace;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.ProseMirror pre code {
+  color: inherit;
+  padding: 0;
+  background: none;
+  font-size: 0.85rem;
+}
+
+.ProseMirror hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 2rem 0;
+}
+
+.ProseMirror .task-item {
+  display: flex;
+  align-items: flex-start;
+  margin: 0.25rem 0;
+}
+
+.ProseMirror .task-item input[type="checkbox"] {
+  margin-right: 0.5rem;
+  margin-top: 0.125rem;
+}
+
